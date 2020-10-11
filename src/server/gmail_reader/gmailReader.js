@@ -54,6 +54,7 @@ const gmailReader = async (imap, jira_bugCreator) =>{
                                     jira_bugCreator(emailEnvolope, (jiraError, jiraURL) =>{
                                         if(jiraError){
                                             writeLog(jiraError);
+                                            console.log(jiraURL);
                                         }else{
                                             //this method will send the JIRA url to slack
                                             // slackURLEmitter(jiraURL, (slackURLError, slackURLResponse)=>{
