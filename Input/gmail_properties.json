@@ -1,0 +1,7 @@
+{
+    "user" : "bloodbankdev1234@gmail.com",
+    "password" : "Blackkat@1234",
+    "host": "imap.gmail.com",
+    "port": 993,
+    "tls": true
+}
