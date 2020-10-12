@@ -1,6 +1,6 @@
 var fs = require("fs");
-var base64 = require("base64-stream");
-var path = require("path");
+// var base64 = require("base64-stream");
+// var path = require("path");
 var simpleParser = require("mailparser").simpleParser;
 const { writeLog } = require('../../utility/writeLog')
 
@@ -11,12 +11,14 @@ const gmailReader = async (imap, jira_bugCreator) =>{
     await imap.once("ready", () => {
         imap.openBox("INBOX", false, (err, box) => {
             if (err) {
-               writeLog(err);
+               writeLog(err+"line 14");
+               return
             }
             // Search unseen emails having “hello world” in their Subject headers
             imap.search(["UNSEEN"], (err1, results) => {
                 if (err1) {
-                    writeLog(err1);
+                    writeLog(err1+"line 19");
+                    return
                 }
                 try {
                     // const f = imap.fetch(results, { bodies: "TEXT" });
@@ -30,6 +32,7 @@ const gmailReader = async (imap, jira_bugCreator) =>{
                             simpleParser(stream, (err2, mail) => {
                                 if (err2) {
                                     writeLog("Read mail executor error …..", err2);
+                                    return
                                     //this.emit(EXECUTOR_EVENTS.STOPPED, { reason: END_REASON.ERROR, error: err2 });
                                 }
 
@@ -41,10 +44,23 @@ const gmailReader = async (imap, jira_bugCreator) =>{
                                 emailEnvolope.to = mail.to.text;
                                 emailEnvolope.subject = mail.subject;
                                 emailEnvolope.text = mail.text;
-                                emailEnvolope.attachments = [];
+                                emailEnvolope.attachmentsName = [];
+                                emailEnvolope.attachmentsContent = [];
+
+                                // write attachments
+                                for (let i = 0; i < mail.attachments.length; i++) {
+                                    const attachment = mail.attachments[i];
+                                    const { filename, content } = attachment;
+                                    emailEnvolope.attachmentsName.push(filename);
+                                    emailEnvolope.attachmentsContent.push(content);
+                                    //fs.writeFileSync(path.join(workspace, dir, filename), attachment.content, "base64"); // take encoding from attachment ?
+                                }
+                                for (let i = 0; i < emailEnvolope.attachmentsName.length; i++) {
+                                    console.log(emailEnvolope.attachmentsName);
+                                    console.log(emailEnvolope.attachmentsContent);
+                                }
 
                                 writeLog("processing mail done….");
-                                console.log(emailEnvolope.text+"holatemp");
 
                                 //this method will create the JIRA "BUG" isue after reading the email and taking the 
                                 //body of the email
@@ -54,17 +70,12 @@ const gmailReader = async (imap, jira_bugCreator) =>{
                                     jira_bugCreator(emailEnvolope, (jiraError, jiraURL) =>{
                                         if(jiraError){
                                             writeLog(jiraError);
-                                            console.log(jiraURL);
+                                            return
                                         }else{
+                                            writeLog(jiraURL);
+                                            const { slackURLEmitter } = require('../slackURLEmitter/slackURLEmitter');
                                             //this method will send the JIRA url to slack
-                                            // slackURLEmitter(jiraURL, (slackURLError, slackURLResponse)=>{
-                                            //     if(slackURLError){
-                                            //         console.log(slackURLError);
-                                            //     }
-                                            //     else{
-                                            //         console.log(slackURLResponse);
-                                            //     }
-                                            // })
+                                            slackURLEmitter(jiraURL)
                                         }
                                     });
                                 }
@@ -77,6 +88,7 @@ const gmailReader = async (imap, jira_bugCreator) =>{
                             imap.addFlags(uid, ["\\Seen"], (err2) => {
                                 if (err2) {
                                     writeLog(err2);
+                                    return
                                 } else {
                                     writeLog("Marked as read!");
                                 }
@@ -88,7 +100,7 @@ const gmailReader = async (imap, jira_bugCreator) =>{
                         imap.end();
                     });
                 } catch (errorWhileFetching) {
-                    writeLog(errorWhileFetching.message);
+                    writeLog(errorWhileFetching.message+"line 91");
 
                     if (errorWhileFetching.message === "Nothing to fetch") {
                         writeLog("no mails fetched, temp directory not created");

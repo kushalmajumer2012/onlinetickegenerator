@@ -8,8 +8,13 @@ const {imap} = require('../src/connections/imap_connection');
 //     }
 // })
 
-test('Gmail success', ()=>{
-    if(!imap){
-        throw new Error('gmail api not accessable!');
-    }
+test('Gmail success', async ()=>{
+    await imap.once("ready", () => {
+    });
+    await imap.once("error", (err) => {
+        console.log(err)
+        if(err){
+            throw new Error('error');
+        }
+    });
 })
