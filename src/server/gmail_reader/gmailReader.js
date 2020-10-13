@@ -75,7 +75,7 @@ const gmailReader = async (imap, jira_bugCreator) =>{
                                             writeLog(jiraURL);
                                             const { slackURLEmitter } = require('../slackURLEmitter/slackURLEmitter');
                                             //this method will send the JIRA url to slack
-                                            slackURLEmitter(jiraURL)
+                                            slackURLEmitter(jiraURL);
                                         }
                                     });
                                 }

@@ -1,4 +1,3 @@
-//const {readPropertiesFile} = require('../utility/readPropertiesFle');
 var path = require("path");
 const filename = "jira_properties.json";
 const fs = require('fs');

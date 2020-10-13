@@ -34,7 +34,7 @@ const  jira_bugCreator = (emailEnvolope, callback) =>{
 
             const formData = {
                 file: {
-                    value: emailEnvolope.attachmentsContent[i],
+                    value: new Buffer(emailEnvolope.attachmentsContent[i], 'binary'),
                     options: {
                         filename: emailEnvolope.attachmentsName[i],
                         contentType: "multipart/form-data"
@@ -43,12 +43,12 @@ const  jira_bugCreator = (emailEnvolope, callback) =>{
             };
 
                 const header = {
-                    "Authentication": 'Basic ' + new Buffer(basic_auth.username + ':' + jira_connection.basic_auth.password).toString('base64'),
+                    "Authentication": 'Basic ' + new Buffer(basic_auth.username + ':' + 'Kushmajum_801435').toString('base64'),
                     // ** IMPORTANT **
                     // "Use of the 'nocheck' value for X-Atlassian-Token
                     // has been deprecated since rest 3.0.0.
                     // Please use a value of 'no-check' instead."
-                    "X-Atlassian-Token": 'no-check',
+                    "X-Atlassian-Token": jira_connection.basic_auth.password,
                     "Content-Type": "multipart/form-data"
                 }
             
